@@ -12,7 +12,7 @@ public class SimpleAgenda {
 
             // afisare meniu
             System.out.println();
-            System.out.println("1.Show names");
+            System.out.println("1.List names");
             System.out.println("2.Add a name");
             System.out.println("3.Modify a name");
             System.out.println("4.Delete a name");
@@ -22,10 +22,10 @@ public class SimpleAgenda {
             option=SkeletonJava.readIntConsole("Select an option:");
 
             switch (option) {
-                case 1: showNames();break;
+                case 1: listNames();break;
                 case 2: addName();break;
                 case 3: modifyName();break;
-
+                case 4: deleteName();break;
             }
 
 
@@ -34,12 +34,12 @@ public class SimpleAgenda {
 
     }
 
-    static void showNames(){
+    static void listNames(){
 
         for (int i=0;i<nameList.length;i++) {
             if (nameList[i] == null) {                                          //daca stringul e gol se specifica ca pozitia e goala
                 System.out.println("Position " + (i + 1) + " is empty");
-            } else {                                                            //altfel se se afiseaza stringul si pozitia
+            } else {                                                            //altfel  se afiseaza stringul si pozitia
                 System.out.println(nameList[i] + " is on position " + (i + 1));
 
             }
@@ -47,30 +47,64 @@ public class SimpleAgenda {
         System.out.println();
     }
 
-    static void addName() {
+    static int addName() {
 
-        // de optimizat cand se umple agenda
 
-        // de optimizat daca deja exista o pers cu acel nume
+        String name = SkeletonJava.readStringConsole("Input name:");
+        int foundName = findName(name);
 
-        if(index<nameList.length) {
-            String name = SkeletonJava.readStringConsole("Input name:");
+        if (foundName>=0){
+            String goForward = SkeletonJava.readStringConsole("Name already exists, continue to add? [y]:");
+                if (goForward.charAt(0)!='y') {
+                    return 0;
+                }
+        }
+
+        if (index < nameList.length) {
+
             nameList[index] = name;
             index++;
         }
-        else
-        {
-            System.out.println("OOM");
+        else {
+            int freePos = searchEmpty();
+            if (freePos >= 0) {
+
+                nameList[freePos] = name;
+            }
+            else {
+                System.out.println("Out of Memory");
+            }
         }
+    return 0;
+
+    }
+
+    static int searchEmpty(){
+
+        int i=0;
+        do{
+            if(nameList[i]==null){
+                return i;
+            }
+            i++;
+        }while(i<nameList.length);
+        return -1;
     }
 
 
 
-    static void del() {
+    static void deleteName() {
 
-        // citeste un nume
-        // il cauta in array
-        //daca il gaseste il sterge  asa listName[unde l-a gasit]=null sau "";
+        String oldName = SkeletonJava.readStringConsole("Input the name to delete:");
+
+        int foundPos = findName(oldName);
+
+        if(foundPos>=0){
+            nameList[foundPos] = null;
+            System.out.println("Name was deleted");
+        }
+
+
 
     }
 
@@ -79,29 +113,61 @@ public class SimpleAgenda {
 
         String oldName = SkeletonJava.readStringConsole("Input the name to modify:");
 
+        int foundPos = findName(oldName);
+
+        if(foundPos>=0){
+            nameList[foundPos] = SkeletonJava.readStringConsole("Input the new name:");
+
+            System.out.println("Name replaced");
+        }
+
+
+
+
+    }
+
+    static int findName(String name){
         int i=0;
         boolean isFound = false;
 
         do{
-            if(compareStrings(oldName,nameList[i])){
-                isFound = true;
-            }
-        }while(i<nameList.length || !isFound);
+            isFound = compareStrings(name,nameList[i]);
+            i++;
+            //System.out.println(nameList.length);
+            //System.out.println("while cycle "+i);
+        }while(i<nameList.length && !isFound);
 
-        System.out.println("I found" + nameList.length);
-        // citeste un nume
-        // il cauta in array
-        // daca il gaseste cere noul nume si il substituie pe cel vechi cu cel nou
+        if(isFound) {
+            System.out.println("I found it on position " + i);
+
+            return i - 1;
+        }
+        else{
+                System.out.println("Name not found");
+                return -1;
+        }
+
+
     }
 
     static boolean compareStrings(String first, String second){
+
+        //System.out.println(first+" "+second);
+
+        if (first==null || second==null){
+            //System.out.println("One string is null");
+            return false;
+
+        }
         if (first.length()!=second.length()){
+            //System.out.println("String length differs");
             return false;
         }
         else{
             for (int i=0;i<first.length();i++)
             {
                 if(first.charAt(i)!=second.charAt(i)){
+                    //System.out.println("String char differs");
                     return false;
                 }
             }
