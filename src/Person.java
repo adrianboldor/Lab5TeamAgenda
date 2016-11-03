@@ -5,4 +5,8 @@ public class Person {
 
     String name;
     String phoneNumber;
+
+    public void printPerson(){
+        System.out.println(name+" "+phoneNumber);
+    }
 }

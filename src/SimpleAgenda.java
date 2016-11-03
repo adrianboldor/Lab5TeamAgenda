@@ -143,7 +143,7 @@ public class SimpleAgenda {
             return i - 1;
         }
         else{
-                System.out.println("Name not found");
+                //System.out.println("Name not found");
                 return -1;
         }
 
