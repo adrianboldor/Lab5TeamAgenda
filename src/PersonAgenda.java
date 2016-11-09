@@ -1,6 +1,6 @@
 public class PersonAgenda {
 
-    static Person[] nameList = new Person[2]; // store the names
+    static Person[] nameList = new Person[5]; // store the names
     static int index=0;
 
     public static void main(String[] args) {
@@ -32,27 +32,7 @@ public class PersonAgenda {
 
     }
 
-    static void add() {
 
-        // de optimizat cand se umple agenda
-
-        // de optimizat daca deja exista o pers cu acel nume
-
-        if(index<nameList.length) {
-            String name = SkeletonJava.readStringConsole("Input the name:");
-            String number = SkeletonJava.readStringConsole("Input the number:");
-
-            Person p = new Person();
-            p.name=name;
-            p.phoneNumber=number;
-            nameList[index] = p;
-            index++;
-        }
-        else
-        {
-            System.out.println("gata memoria, schimba telul ");
-        }
-    }
 
     static void listNames(){
 
@@ -67,54 +47,63 @@ public class PersonAgenda {
         System.out.println();
     }
 
-    static int addName() {
+    static void addName() {
 
 
-        String name = SkeletonJava.readStringConsole("Input name:");
-        int foundName = findName(name);
+        int freePos = searchEmpty();
+        if (freePos >= 0) {                                 //verifica daca exista pozitie libera
 
-        if (foundName>=0){
-            String goForward = SkeletonJava.readStringConsole("Name already exists, continue to add? [y]:");
-            if (goForward.charAt(0)!='y') {
-                return 0;
+            String name = SkeletonJava.readStringConsole("Input name:");
+
+            int foundName = findName(name);
+            boolean goForward = true;
+
+            if (foundName>=0){                               //verifica daca exista deja numele si solicita confirmare de continuare daca il gaseste
+                String checkForward = SkeletonJava.readStringConsole("Name already exists, continue to add? [y]:");
+                if (checkForward.charAt(0)!='y') {
+                    goForward = false;
+                }
+
             }
+            if (goForward) {
+                Person p = new Person();
+                p.setName(name);
+                p.setPhoneNumber(SkeletonJava.readStringConsole("Input phone number:"));
+                nameList[freePos] = p;
 
-        }
-
-        if (index < nameList.length) {
-
-            Person p = new Person();
-            p.name = name;
-            p.phoneNumber = SkeletonJava.readStringConsole("Input phone number:");
-            nameList[index] = p;
-            index++;
+                if (index < nameList.length){
+                    index++;
+                }
+            }
         }
         else {
-            int freePos = searchEmpty();
-            if (freePos >= 0) {
-                Person p = new Person();
-                p.name = name;
-                p.phoneNumber = SkeletonJava.readStringConsole("Input phone number:");
-                nameList[freePos] = p;
-            }
-            else {
-                System.out.println("Out of Memory");
-            }
+            System.out.println("Out of Memory");
         }
-        return 0;
+
 
     }
 
-    static int searchEmpty(){
+    static int searchEmpty(){  //daca nu gaseste pozitie libera va returna -1, altfel retuneaza pozitia libera
 
-        int i=0;
-        do{
-            if(nameList[i]==null){
-                return i;
-            }
-            i++;
-        }while(i<nameList.length);
-        return -1;
+        //TODO pastreaza pozitiile care au fost sterse si evita cautarea in toata lista
+
+        int foundEmpty = -1;
+
+        if (index < nameList.length) {
+            foundEmpty = index;
+        }
+        else {
+            int i = 0;
+
+            do {
+                if (nameList[i] == null) {
+                    foundEmpty = i;
+                }
+                i++;
+            } while (i < nameList.length);
+        }
+
+        return foundEmpty;
     }
 
 
@@ -142,68 +131,33 @@ public class PersonAgenda {
         int foundPos = findName(oldName);
 
         if(foundPos>=0){
-            nameList[foundPos].name = SkeletonJava.readStringConsole("Input the new name:");
-            nameList[foundPos].phoneNumber = SkeletonJava.readStringConsole("Input number:");
+            nameList[foundPos].setName(SkeletonJava.readStringConsole("Input the new name:"));
+            nameList[foundPos].setPhoneNumber(SkeletonJava.readStringConsole("Input number:"));
 
             System.out.println("Name replaced");
         }
-
-
-
-
     }
 
     static int findName(String name){
         int i=0;
         boolean isFound = false;
+        int foundPos = -1;
 
         do{
-            if(nameList[i]!=null) {
-                isFound = compareStrings(name, nameList[i].name);
+            if(nameList[i]!=null) {        //trebuie verificat inainte ca oniectul nu este null altfel compararea va arunca exceptie
+                isFound = name.equalsIgnoreCase(nameList[i].getName());
             }
             i++;
-            //System.out.println(nameList.length);
-            //System.out.println("while cycle "+i);
         }while(i<nameList.length && !isFound);
 
         if(isFound) {
             System.out.println("I found it on position " + i);
-
-            return i - 1;
-        }
-        else{
-            //System.out.println("Name not found");
-            return -1;
+            foundPos =  i-1;
         }
 
-
+        return foundPos;
     }
 
-    static boolean compareStrings(String first, String second){
-
-        //System.out.println(first+" "+second);
-
-        if (first==null || second==null){
-            //System.out.println("One string is null");
-            return false;
-
-        }
-        if (first.length()!=second.length()){
-            //System.out.println("String length differs");
-            return false;
-        }
-        else{
-            for (int i=0;i<first.length();i++)
-            {
-                if(first.charAt(i)!=second.charAt(i)){
-                    //System.out.println("String char differs");
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
 
 
 }
